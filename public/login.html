@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Page</title>
+</head>
+<body>
+  <h1>Login Page</h1>
+  <button id="googleLogin">Sign in with Google</button>
+  <button id="logout" style="display:none;">Sign out</button>
+
+  <div id="userInfo" style="margin-top:20px;"></div>
+
+  <script type="module">
+    import { auth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "./firebase-config.js";
+
+    const loginBtn = document.getElementById("googleLogin");
+    const logoutBtn = document.getElementById("logout");
+    const userInfo = document.getElementById("userInfo");
+    const provider = new GoogleAuthProvider();
+
+    loginBtn.addEventListener("click", async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        userInfo.innerHTML = `<p>Signed in as ${user.displayName}</p><p>Email: ${user.email}</p>`;
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => signOut(auth));
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userInfo.innerHTML = `<p>Welcome, ${user.displayName}</p><p>Email: ${user.email}</p>`;
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+      } else {
+        userInfo.innerHTML = "<p>You are signed out.</p>";
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
